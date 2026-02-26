@@ -360,7 +360,16 @@ class ForexBot(discord.Client):
                 # Recharge depuis le cache si redémarrage en milieu de semaine
                 self.events = parse_events(load_cache())
 
-            # ── Vérification alertes T-30min ──────────────────────
+            # ── Mode veille weekend (Sam & Dim) ───────────────────
+            # Le bot dort le weekend — économie d'heures Railway
+            # Lundi→Vendredi = actif | Samedi→Dimanche = veille 30min
+            is_weekend = now_local.weekday() in (5, 6)  # 5=Sam, 6=Dim
+            if is_weekend:
+                log.info(f"💤 Mode veille weekend — prochaine vérification dans 30min")
+                await asyncio.sleep(1800)  # 30 minutes
+                continue
+
+            # ── Vérification alertes T-30min (Lundi→Vendredi) ────
             window_start = now_utc + timedelta(minutes=ALERT_BEFORE_MIN - 1)
             window_end   = now_utc + timedelta(minutes=ALERT_BEFORE_MIN + 1)
 
@@ -382,7 +391,7 @@ class ForexBot(discord.Client):
                 self.sent = set(list(self.sent)[-2000:])
                 save_sent(self.sent)
 
-            # Pause 60 secondes
+            # Pause 60 secondes (jours de semaine)
             await asyncio.sleep(60)
 
 
