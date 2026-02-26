@@ -1,0 +1,6 @@
+.env
+*.log
+sent_alerts.json
+ff_calendar_cache.ics
+__pycache__/
+*.pyc

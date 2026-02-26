@@ -1,0 +1,6 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "python forex_bot_discord.py"
+restartPolicyType = "always"
