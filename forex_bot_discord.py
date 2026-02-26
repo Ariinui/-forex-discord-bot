@@ -327,12 +327,16 @@ class ForexBot(discord.Client):
             now_utc   = datetime.now(timezone.utc)
             now_local = now_utc.astimezone(UTC_MINUS_10)
 
-            # ── Chargement ICS chaque lundi (ou si cache vide) ──
-            is_monday = now_local.weekday() == 0
+            # ── Chargement ICS chaque mardi à minuit (00:00 UTC-10) ──
+            is_tuesday_midnight = (
+                now_local.weekday() == 1 and   # Mardi
+                now_local.hour == 0 and         # Minuit
+                now_local.minute < 2            # Fenêtre 2 min pour ne pas rater
+            )
             cache_ok  = os.path.exists(ICS_CACHE_FILE)
             week_key  = now_local.strftime("%Y-W%W")
 
-            if is_monday and self.summary_sent_week != week_key:
+            if is_tuesday_midnight and self.summary_sent_week != week_key:
                 try:
                     ics_data     = fetch_ics()
                     self.events  = parse_events(ics_data)
